@@ -1,3 +1,5 @@
+#include <smc-envelope/PaymentChannel.h>
+
 #include "td/utils/port/signals.h"
 #include "td/utils/OptionParser.h"
 #include "td/utils/format.h"
@@ -8,79 +10,68 @@
 
 #include "DataParser.h"
 #include "DbScanner.h"
-#include "DbReader.h"
 #include "Scheduler.h"
 
 
 int main(int argc, char *argv[]) {
-  SET_VERBOSITY_LEVEL(verbosity_INFO);
-  td::set_default_failure_signal_handler().ensure();
+  // auto cb = vm::CellBuilder();
+  // cb.store_bits(td::BitString(32));
+  // cb.store_bits(td::BitString(104));
+  // printf("%d\n", cb.get_bits());
+  // auto cell = cb.finalize_copy();
+  //
+  //
+  // auto rs = block::ConfigInfo::extract_config(cell, 0).move_as_ok();
 
-  CHECK(vm::init_op_cp0());
-
-  td::actor::ActorOwn<DbScanner> db_scanner_;
-  td::actor::ActorOwn<DbReader> db_reader_;
-  td::actor::ActorOwn<ParseManager> parse_manager_;
-  td::actor::ActorOwn<Scheduler> scheduler_;
-
-  // options
-  td::uint32 threads = 7;
-  td::int32 last_known_seqno = 2;
-  std::string db_root;
-  
-  td::OptionParser p;
-  p.set_description("Sandbox");
-  p.add_option('\0', "help", "prints_help", [&]() {
-    char b[10240];
-    td::StringBuilder sb(td::MutableSlice{b, 10000});
-    sb << p;
-    std::cout << sb.as_cslice().c_str();
-    std::exit(2);
-  });
-  p.add_option('D', "db", "Path to TON DB folder", [&](td::Slice fname) { 
-    db_root = fname.str();
-  });
-  p.add_checked_option('f', "from", "Masterchain seqno to start indexing from", [&](td::Slice fname) { 
-    int v;
-    try {
-      v = std::stoi(fname.str());
-    } catch (...) {
-      return td::Status::Error(ton::ErrorCode::error, "bad value for --from: not a number");
+  block::StdAddress addr(std::string("EQBqg596nW5TA9cfUePEFGnyw1V0F560v7Qg3KYku5iXU217"));
+  auto code_cell = vm::std_boc_deserialize(td::base64_decode(td::Slice(
+      "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"))
+    .move_as_ok()).move_as_ok();
+  auto data_cell = vm::std_boc_deserialize(td::base64_decode(td::Slice(
+"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"
+  ))
+    .move_as_ok()).move_as_ok();
+  auto P = td::PromiseCreator::lambda([](td::Result<JettonMasterData> R) {
+    CHECK(R.is_ok());
+    LOG(INFO) << "ACCEPTED!!";
+    auto value = R.move_as_ok();
+    LOG(INFO) << value.admin_address.value();
+    LOG(INFO) << "Content:";
+    for(auto i : value.jetton_content.value()) {
+      LOG(INFO) << i;
     }
-    last_known_seqno = v;
-    return td::Status::OK();
   });
-  // scheduler settings
-  p.add_checked_option('t', "threads", "Scheduler threads (default: 7)", [&](td::Slice fname) { 
-    int v;
-    try {
-      v = std::stoi(fname.str());
-    } catch (...) {
-      return td::Status::Error(ton::ErrorCode::error, "bad value for --threads: not a number");
-    }
-    threads = v;
-    return td::Status::OK();
-  });
-  auto S = p.run(argc, argv);
-  if (S.is_error()) {
-    LOG(ERROR) << "failed to parse options: " << S.move_as_error();
-    std::_Exit(2);
-  }
 
-  td::actor::Scheduler scheduler({threads});
-  scheduler.run_in_context([&] { 
-    parse_manager_ = td::actor::create_actor<ParseManager>("parsemanager");
-    db_scanner_ = td::actor::create_actor<DbScanner>("scanner", db_root, dbs_secondary);
-    db_reader_ = td::actor::create_actor<DbReader>("reader", db_root);
-
-    scheduler_ = td::actor::create_actor<Scheduler>("scheduler", db_scanner_.get(), db_reader_.get(),
-      parse_manager_.get(), last_known_seqno);
-  });
-  scheduler.run_in_context([&] { td::actor::send_closure(scheduler_, &Scheduler::run); });
-  
-  while(scheduler.run(1)) {
-    // do something
-  }
-  LOG(INFO) << "Done!";
+  JettonMasterDetector d = JettonMasterDetector(
+    td::actor::ActorId<InterfaceManager>(),
+    td::actor::ActorId<InsertManagerInterface>()
+  );
+  MasterchainBlockDataState st;
+  // {
+  //   std::vector<BlockDataState>(),
+  //   std::vector<BlockDataState>(),
+  //   block::ConfigInfo::extract_config()
+  // };
+  d.detect_impl(addr, code_cell, data_cell, 1, 1, st, std::move(P));
+  //
+  // JettonMasterDetector d = JettonMasterDetector(
+  //   td::actor::ActorId<InterfaceManager>(),
+  //   td::actor::ActorId<InsertManagerInterface>()
+  // );
+  // block::StdAddress addr = block::StdAddress::parse("EQCl0S4xvoeGeFGijTzicSA8j6GiiugmJW5zxQbZTUntre-1")
+  //     .move_as_ok();
+  // printf("%s\n", addr.addr.to_hex().c_str());
+  //
+  // td::Ref<vm::Cell> c = vm::CellBuilder().finalize();
+  //
+  // auto P1 = td::PromiseCreator::lambda([](td::Result<JettonMasterData> master_data) {
+  //   if (master_data.is_ok()) {
+  //     LOG(DEBUG) << "Detected interface JETTON_MASTER for " << "!!!";
+  //   }
+  // });
+  //
+  // MasterchainBlockDataState st;
+  //
+  // d.detect_impl(addr, c, c, 1, 1, st, std::move(P1));
   return 0;
 }

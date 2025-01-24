@@ -21,7 +21,7 @@ private:
   InsertManagerPostgres::Credential credential_;
 public:
   InsertManagerPostgres(InsertManagerPostgres::Credential credential) : credential_(credential) {}
-
+  void init();
   void create_insert_actor(std::vector<InsertTaskStruct> insert_tasks, td::Promise<td::Unit> promise) override;
   void get_existing_seqnos(td::Promise<std::vector<std::uint32_t>> promise, std::int32_t from_seqno = 0, std::int32_t to_seqno = 0) override;
   void get_trace_assembler_state(td::Promise<schema::TraceAssemblerState> promise) override;
@@ -32,6 +32,8 @@ class InsertBatchPostgres: public td::actor::Actor {
 public:
   InsertBatchPostgres(InsertManagerPostgres::Credential credential, std::vector<InsertTaskStruct> insert_tasks, td::Promise<td::Unit> promise) :
     credential_(std::move(credential)), insert_tasks_(std::move(insert_tasks)), promise_(std::move(promise)) {}
+
+  void start_up0();
 
   void start_up() override;
 private:

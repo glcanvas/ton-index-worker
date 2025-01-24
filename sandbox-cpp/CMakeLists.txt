@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.16)
 add_executable(sandbox-cpp
     src/main.cpp
     src/Scheduler.cpp
-    src/DbReader.cpp
 )
 
 target_include_directories(sandbox-cpp 

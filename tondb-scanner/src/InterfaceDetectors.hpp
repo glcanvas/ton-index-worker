@@ -215,8 +215,8 @@ public:
     }
     ton::SmartContract smc({code_cell, data_cell});
     ton::SmartContract::Args args;
-    args.set_libraries(vm::Dictionary(blocks_ds.config_->get_libraries_root(), 256)); // todo comment in tests
-    args.set_config(blocks_ds.config_); // todo comment in tests
+    //args.set_libraries(vm::Dictionary(blocks_ds.config_->get_libraries_root(), 256)); // todo comment in tests
+    //args.set_config(blocks_ds.config_); // todo comment in tests
     args.set_now(td::Time::now());
     args.set_address(std::move(address));
 
@@ -319,8 +319,8 @@ public:
     block::gen::t_MsgAddressInt.pack_addr_std(cb, anycast_cs, owner_address.workchain, owner_address.addr);
     auto owner_address_cell = cb.finalize();
 
-    args.set_libraries(vm::Dictionary(blocks_ds.config_->get_libraries_root(), 256));
-    args.set_config(blocks_ds.config_);
+    //args.set_libraries(vm::Dictionary(blocks_ds.config_->get_libraries_root(), 256));
+    //args.set_config(blocks_ds.config_);
     args.set_now(td::Time::now());
     args.set_address(master_address);
     args.set_stack({vm::StackEntry(vm::load_cell_slice_ref(owner_address_cell))});
@@ -404,8 +404,8 @@ public:
     }
     ton::SmartContract smc({code_cell, data_cell});
     ton::SmartContract::Args args;
-    args.set_libraries(vm::Dictionary(blocks_ds.config_->get_libraries_root(), 256));
-    args.set_config(blocks_ds.config_);
+    //args.set_libraries(vm::Dictionary(blocks_ds.config_->get_libraries_root(), 256));
+    //args.set_config(blocks_ds.config_);
     args.set_now(td::Time::now());
     args.set_address(std::move(address));
 
@@ -708,8 +708,8 @@ private:
     }
     ton::SmartContract smc({code_cell, data_cell});
     ton::SmartContract::Args args;
-    args.set_libraries(vm::Dictionary(blocks_ds.config_->get_libraries_root(), 256));
-    args.set_config(blocks_ds.config_);
+    //args.set_libraries(vm::Dictionary(blocks_ds.config_->get_libraries_root(), 256));
+    //args.set_config(blocks_ds.config_);
     args.set_now(td::Time::now());
     args.set_address(std::move(address));
 
@@ -893,8 +893,8 @@ private:
     }
     ton::SmartContract smc({code_cell, data_cell});
     ton::SmartContract::Args args;
-    args.set_libraries(vm::Dictionary(blocks_ds.config_->get_libraries_root(), 256));
-    args.set_config(blocks_ds.config_);
+    //args.set_libraries(vm::Dictionary(blocks_ds.config_->get_libraries_root(), 256));
+    //args.set_config(blocks_ds.config_);
     args.set_now(td::Time::now());
     args.set_address(std::move(address));
 
@@ -1013,8 +1013,8 @@ private:
     auto data_cell = vm::std_boc_deserialize(td::base64_decode(collection_data.data_boc).move_as_ok()).move_as_ok();
     ton::SmartContract smc({code_cell, data_cell});
     ton::SmartContract::Args args;
-    args.set_libraries(vm::Dictionary(blocks_ds.config_->get_libraries_root(), 256));
-    args.set_config(blocks_ds.config_);
+    //args.set_libraries(vm::Dictionary(blocks_ds.config_->get_libraries_root(), 256));
+    //args.set_config(blocks_ds.config_);
     args.set_now(td::Time::now());
     args.set_address(block::StdAddress::parse(collection_data.address).move_as_ok());
     args.set_stack({vm::StackEntry(item_data.index)});
@@ -1043,8 +1043,8 @@ private:
     auto data_cell = vm::std_boc_deserialize(td::base64_decode(collection_data.data_boc).move_as_ok()).move_as_ok();
     ton::SmartContract smc({code_cell, data_cell});
     ton::SmartContract::Args args;
-    args.set_libraries(vm::Dictionary(blocks_ds.config_->get_libraries_root(), 256));
-    args.set_config(blocks_ds.config_);
+    //args.set_libraries(vm::Dictionary(blocks_ds.config_->get_libraries_root(), 256));
+    //args.set_config(blocks_ds.config_);
     args.set_now(td::Time::now());
     args.set_address(block::StdAddress::parse(collection_data.address).move_as_ok());
     args.set_stack({vm::StackEntry(index), vm::StackEntry(ind_content)});
@@ -1074,8 +1074,8 @@ private:
   td::Result<std::string> get_domain(td::Ref<vm::Cell> code, td::Ref<vm::Cell> data, const MasterchainBlockDataState& blocks_ds) {
     ton::SmartContract smc({code, data});
     ton::SmartContract::Args args;
-    args.set_libraries(vm::Dictionary(blocks_ds.config_->get_libraries_root(), 256));
-    args.set_config(blocks_ds.config_);
+    //args.set_libraries(vm::Dictionary(blocks_ds.config_->get_libraries_root(), 256));
+    //args.set_config(blocks_ds.config_);
     args.set_method_id("get_domain");
     auto res = smc.run_get_method(args);
     if (!res.success) {
